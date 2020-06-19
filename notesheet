@@ -23,23 +23,23 @@
  * Created New Bridge network have simple DNS and each container is this network can each other by using their names.
 
  	Exp: docker network create kopru1 (docker network create --driver=bridge --subnet=10.10.10.0/16 --ip-range=10.10.10.0/24 --gateway=10.10.10.1 kopru)
- 		   docker network inspect kopru1
- 		   docker container run -dit --name webserver --net kopru1 alpine:latest sh
- 		   docker container run -dit --name mongodb --net kopru1 mongo:latest sh
+ 	     docker network inspect kopru1
+ 	     docker container run -dit --name webserver --net kopru1 alpine:latest sh
+ 	     docker container run -dit --name mongodb --net kopru1 mongo:latest sh
 
  * A container can be attached to network while running. But this container should not be added default bridge network.
 
  	Exp: docker network connect kopru2 webserver
- 		   docker network disconnect kopru2 webserver
+ 	     docker network disconnect kopru2 webserver
 
  * Logging 
 
  	Exp: docker logs <container_name>	/ list all logs
- 		   docker logs -t <container_name> / order by time
- 		   docker logs --until 2020-05-30T10:44:18.760515166Z <container_name>  / time parameter is got after "docker logs -t"
- 		   docker logs --since 2020-05-30T10:44:18.760515166Z <container_name>  / time parameter is got after "docker logs -t"
- 		   docker logs --tail 5 <container_name>	/ last 5 lines of logs
- 		   docker logs -f <container_name>	/ live logs stream
+             docker logs -t <container_name> / order by time
+ 	     docker logs --until 2020-05-30T10:44:18.760515166Z <container_name>  / time parameter is got after "docker logs -t"
+ 	     docker logs --since 2020-05-30T10:44:18.760515166Z <container_name>  / time parameter is got after "docker logs -t"
+ 	     docker logs --tail 5 <container_name>	/ last 5 lines of logs
+ 	     docker logs -f <container_name>	/ live logs stream
 
  * Top and Stats
 
@@ -50,21 +50,21 @@
  * Container CPU and Memory Limitation
 
  	Exp: docker container run -d --memory=100m <image_name>	/ 100mb memory is dedicated for the container
- 		   docker container run -d --cpus="1.5" <image_name>	/ uses 1.5 cpus from all the system cpus
+ 	     docker container run -d --cpus="1.5" <image_name>	/ uses 1.5 cpus from all the system cpus
 
  * Environment Variables
 
  	Exp: printenv	/ list env. variables
- 		 echo $<env_par_name>	/ show a spesific variable
- 		 export test="hellooooo"	/ create a variable
+ 	     echo $<env_par_name>	/ show a spesific variable
+ 	     export test="hellooooo"	/ create a variable
 
- 		 docker container run -it --env VAR1=deneme1 --env VAR2=deneme2 ubuntu bash	/ add env. variable into container
- 		 docker container run -it --env-file env.list ubuntu bash		/ env.list is a file which has new env. parameters. 
+             docker container run -it --env VAR1=deneme1 --env VAR2=deneme2 ubuntu bash	/ add env. variable into container
+ 	     docker container run -it --env-file env.list ubuntu bash		/ env.list is a file which has new env. parameters. 
 
  
  * Docker Hub
  	Exp: docker image tag ubuntu:18.04 mtopcu/testqa:ubuntu
- 		   docker image push mtopcu/testqa
+ 	     docker image push mtopcu/testqa
 
  * Copy data from any container to host
  	Exp: docker cp javauygulama:/usr/src/uygulama . 
