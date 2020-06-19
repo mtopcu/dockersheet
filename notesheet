@@ -1,0 +1,124 @@
+-- Docker Notes --
+
+ What is Docker?
+ * Bare Metal -> VM -> Docker
+ * Docker Image R/O layer + Container R/W layer = Container (Thank Union File System)
+   All Container changes are written on this R/W layer.
+
+ 
+ * Network Objects
+   Bridge network object is the default network object of containers. Host network container has the same network feature of the machine
+   that the container runs on. (Even Container IP becomes same with the machine that the container runs on.)
+
+   Exp: docker container run -it --name host_test --net host alpine:latest sh
+
+   None network object can not connect anywhere. It has only loopback adapter on its own.
+
+ * Port Publishing
+  In order to reach the containers from outside, we should use port pusblishing method.
+
+ 	Exp: docker container run -d -p 8080:80 alpine:latest
+ 							  (host_port:container_port)
+
+ * Created New Bridge network have simple DNS and each container is this network can each other by using their names.
+
+ 	Exp: docker network create kopru1 (docker network create --driver=bridge --subnet=10.10.10.0/16 --ip-range=10.10.10.0/24 --gateway=10.10.10.1 kopru)
+ 		   docker network inspect kopru1
+ 		   docker container run -dit --name webserver --net kopru1 alpine:latest sh
+ 		   docker container run -dit --name mongodb --net kopru1 mongo:latest sh
+
+ * A container can be attached to network while running. But this container should not be added default bridge network.
+
+ 	Exp: docker network connect kopru2 webserver
+ 		   docker network disconnect kopru2 webserver
+
+ * Logging 
+
+ 	Exp: docker logs <container_name>	/ list all logs
+ 		   docker logs -t <container_name> / order by time
+ 		   docker logs --until 2020-05-30T10:44:18.760515166Z <container_name>  / time parameter is got after "docker logs -t"
+ 		   docker logs --since 2020-05-30T10:44:18.760515166Z <container_name>  / time parameter is got after "docker logs -t"
+ 		   docker logs --tail 5 <container_name>	/ last 5 lines of logs
+ 		   docker logs -f <container_name>	/ live logs stream
+
+ * Top and Stats
+
+ 	Exp: docker top <container_name>	/ which processes are working in related container
+ 		   docker stats <container_name>	/ show cpu, memory usage of container
+ 		   docker stats					/ show cpu, memory usage of all containers
+
+ * Container CPU and Memory Limitation
+
+ 	Exp: docker container run -d --memory=100m <image_name>	/ 100mb memory is dedicated for the container
+ 		   docker container run -d --cpus="1.5" <image_name>	/ uses 1.5 cpus from all the system cpus
+
+ * Environment Variables
+
+ 	Exp: printenv	/ list env. variables
+ 		 echo $<env_par_name>	/ show a spesific variable
+ 		 export test="hellooooo"	/ create a variable
+
+ 		 docker container run -it --env VAR1=deneme1 --env VAR2=deneme2 ubuntu bash	/ add env. variable into container
+ 		 docker container run -it --env-file env.list ubuntu bash		/ env.list is a file which has new env. parameters. 
+
+ 
+ * Docker Hub
+ 	Exp: docker image tag ubuntu:18.04 mtopcu/testqa:ubuntu
+ 		   docker image push mtopcu/testqa
+
+ * Copy data from any container to host
+ 	Exp: docker cp javauygulama:/usr/src/uygulama . 
+
+ * Docker Commit
+ 	Exp: docker commit <container_name> new_image_name 
+
+
+ * Docker Compose
+
+ 	docker-compose up	/ all services and networks are been up.
+ 	docker-compose down / all services and networks are been down and removed. (except volumes)
+ 	depends_on:		/ For instance, firt mysql be up before wordpress so they can work properly.
+
+ * Docker Swarm
+
+ 	docker swarm init --advertise-addr 192.168.0.23  / First manager creation command
+ 	docker swarm join-token manager		/returns how to add a node as manager 
+ 	docker swarm join-token worker		/ returns how to add a node as manager 
+ 	docker node ls 		/ all nodes are listed
+ 	docker service create --name test --replicas=5 -p 8080:80 nginx	/ creates 5 nignx container named test on the cluster
+	docker service ps test 	/ lists all containers named as test on the cluster
+	docker service ls 	/ lists services on the system
+	docker service scale test=3 / 
+
+	docker network create -d overlay over-net	/ creates a overlay network named "over-net"
+	docker service create --name websrv --network over-net -p 8080:80 --replicas=10 nginx
+	docker service create --name dbsrv --network over-net --replicas=3 mysql
+
+
+	Docker Virtual IP: When docker service run, Swarm creates a VIP for this service and this service maps with this VIP. It works like Load Balancer.
+	Docker Routing Mesh: Even node has not a container on itself, when it gets request, Swarm redirect the request to other nodes that has container on theirselves like DNS.
+
+
+	docker service update --detach --update-delay 5s --update-parallelism 2 --image nginx:v2 websrv  / websrv service has been changed with nginx:v2 image.
+	docker service roll-back --detachwebsrv 	/ roll-back the service with old image
+
+ * Docker Secret
+ 
+ 	docker secret create usrnm username.txt	/ creates a secret named usrnm from the txt file
+ 	docker secret create psswrd password.txt	/ creates a secret named psswrd from the txt file
+ 	echo "secret test" | docker secret create echo_secret
+  
+  All secrets store in root /run/secret folder in the containers
+  
+ 	docker service create --name secretdeneme --secret usrnm --secret psswrd --secret echo_secret nginx
+ 	echo "password22" | docker secret create psswrd2 / creates a secret named psswrd2 from echo output
+ 	docker service update --secret-rm psswrd --secret-add psswrd2 secretdeneme
+
+ * Docker Stack
+
+ 	docker swarm init
+ 	docker stack deploy -c docker-compose.yml wpstack	/creates a stack named wpstack based on docker-compose and deploy it 
+ 	docker stack ps wpstack	
+ 	docker stack rm wpstack
+  
+  
