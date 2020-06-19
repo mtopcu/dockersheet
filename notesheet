@@ -44,8 +44,8 @@
  * Top and Stats
 
  	Exp: docker top <container_name>	/ which processes are working in related container
- 		   docker stats <container_name>	/ show cpu, memory usage of container
- 		   docker stats					/ show cpu, memory usage of all containers
+ 	     docker stats <container_name>	/ show cpu, memory usage of container
+             docker stats					/ show cpu, memory usage of all containers
 
  * Container CPU and Memory Limitation
 
